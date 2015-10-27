@@ -11,12 +11,14 @@ from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent
 
 import cv2
 import numpy as np
+import pandas as pd
+
 
 from lib.python import misc
 from lib.python.ui.ui_main_window_base import Ui_MainWindowBase
 
-from lib.python.ui.movable_poly_line import MovablePolyLine
-
+# from lib.python.ui.tracking_path import TrackingPath
+from lib.python.ui.tracking_path_group import TrackingPathGroup
 
 currentDirPath = os.path.abspath(os.path.dirname(__file__) )
 sampleDataPath = os.path.join(currentDirPath,"data")
@@ -44,39 +46,81 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.imgInit()
         self.menuInit()
 
+        self.df = None
+        self.trackingPathGroup = None
+        self.colors = []
+
+        self.circleCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
+        self.lineCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
+        self.overlayCheckBox.stateChanged.connect(self.overlayCheckBoxStateChanged)
+        self.radiusSpinBox.valueChanged.connect(self.radiusSpinBoxValueChanged)
+
+        self.frameNoSpinBox.valueChanged.connect(self.frameNoSpinBoxValueChanged)
+
+    def overlayCheckBoxStateChanged(self, s):
+        if self.overlayCheckBox.isChecked():
+            self.frameBufferItemGroup.show()
+        else:
+            self.frameBufferItemGroup.hide()
+
+        self.updateInputGraphicsView()
+
+    def polyLineCheckBoxStateChanged(self, s):
+        overlayFrameNo = self.frameNoSpinBox.value()
+
+        min_value = max(self.currentFrameNo-overlayFrameNo,0)
+        current_pos = self.currentFrameNo - min_value
+
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setDrawItem(current_pos, self.circleCheckBox.isChecked())
+            self.trackingPathGroup.setDrawLine(self.lineCheckBox.isChecked())
+
+            self.updateInputGraphicsView()
+
+    def radiusSpinBoxValueChanged(self, value):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setRadius(self.radiusSpinBox.value())
+            self.updateInputGraphicsView()
+
+    def frameNoSpinBoxValueChanged(self, value):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setOverlayFrameNo(self.frameNoSpinBox.value())
+            self.updateInputGraphicsView()
+
     def dragEnterEvent(self,event):
-        event.accept()
+        event.acceptProposedAction()
 
     def dropEvent(self,event):
-        event.setDropAction(QtCore.Qt.MoveAction)
+        # event.setDropAction(QtCore.Qt.MoveAction)
         mime = event.mimeData()
         if mime.hasUrls():
             urls = mime.urls()
             if len(urls) > 0:
-                #self.dragFile.emit()
                 self.processDropedFile(urls[0].toLocalFile())
-            event.accept()
-        else:
-            event.ignore()
+
+        event.acceptProposedAction()
 
     def processDropedFile(self,filePath):
         root,ext = os.path.splitext(filePath)
         if ext == ".filter":
             # Read Filter
             self.openFilterFile(filePath=filePath)
-        elif ext.lower() in [".avi",".mpg",".mts",".mp4"]:
-            # Read Video
-            self.openVideoFile(filePath=filePath)
-        elif ext.lower() in [".png",".bmp",".jpg",".jpeg"]:
-            self.openImageFile(filePath=filePath)
+            return
+        elif ext == ".csv":
+            self.openCSVFile(filePath=filePath)
+        elif self.openImageFile(filePath=filePath):
+            return
+        elif self.openVideoFile(filePath=filePath):
+            return
 
     def videoPlaybackInit(self):
         self.videoPlaybackWidget.hide()
         self.videoPlaybackWidget.frameChanged.connect(self.setFrame)
 
-    def setFrame(self, frame):
+    def setFrame(self, frame, frameNo):
         if frame is not None:
             self.cv_img = frame
+            self.currentFrameNo = frameNo
             self.updateInputGraphicsView()
             self.evaluate()
 
@@ -86,6 +130,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
         self.frameBuffer = Queue()
         self.frameBufferItemGroup = QGraphicsItemGroup()
+        self.frameBufferItemGroup.hide()
         self.inputPixmapRenderScene = QGraphicsScene()
         self.inputPixmapRenderScene.addItem(self.frameBufferItemGroup)
 
@@ -98,11 +143,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.inputPixmap = QPixmap.fromImage(qimg)
         self.inputPixmapItem = QGraphicsPixmapItem(self.inputPixmap)
         self.inputScene.addItem(self.inputPixmapItem)
-
-        self.movablePolyLine = MovablePolyLine()
-        self.movablePolyLine.setRect(self.inputScene.sceneRect())
-        self.inputScene.addItem(self.movablePolyLine)
-        self.movablePolyLine.setPoints([[20,20],[100,100],[150,150]])
 
         self.rubberBand = QtWidgets.QRubberBand(QtWidgets.QRubberBand.Rectangle, self.inputGraphicsView)
         self.inputGraphicsView.mousePressEvent = self.inputGraphicsViewMousePressEvent
@@ -147,10 +187,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
     def menuInit(self):
         pass
-        # self.actionOpenVideo.triggered.connect(self.openVideoFile)
-        # self.actionOpenImage.triggered.connect(self.openImageFile)
-
-        # self.actionOpenFilterSetting.triggered.connect(self.openFilterSettingFile)
 
     def openVideoFile(self, activated=False, filePath = None):
         if filePath is None:
@@ -158,18 +194,54 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
         if len(filePath) is not 0:
             self.filePath = filePath
+
+            ret = self.videoPlaybackWidget.openVideo(filePath)
+            if ret == False:
+                return False
+
             self.videoPlaybackWidget.show()
-            self.videoPlaybackWidget.openVideo(filePath)
 
-    def openImageFile(self):
-        filename, _ = QFileDialog.getOpenFileName(None, 'Open Image File', userDir)
+            self.evaluate()
 
-        if len(filename) is not 0:
-            self.cv_img = cv2.imread(filename)
+            return True
+        else:
+            return False
+
+    def openImageFile(self, activated=False, filePath = None):
+        if filePath == None:
+            filePath, _ = QFileDialog.getOpenFileName(None, 'Open Image File', userDir)
+
+        if len(filePath) is not 0:
+            self.filePath = filePath
+            img = cv2.imread(filePath)
+            if img is None:
+                return False
+
+            self.cv_img = img
             self.videoPlaybackWidget.hide()
-
             self.updateInputGraphicsView()
-            self.releaseVideoCapture()
+
+            self.evaluate()
+
+            return True
+        else:
+            return False
+
+    def openCSVFile(self, activated=False, filePath=None):
+        if filePath is None:
+            filePath, _ = QFileDialog.getOpenFileName(None, 'Open CSV File', userDir, 'CSV files (*.csv)')
+
+        if len(filePath) is not 0:
+            self.df = pd.read_csv(filePath, index_col=0)
+
+            if self.trackingPathGroup is not None:
+                self.inputScene.removeItem(self.trackingPathGroup)
+
+            self.trackingPathGroup = TrackingPathGroup()
+            self.trackingPathGroup.setRect(self.inputScene.sceneRect())
+            self.inputScene.addItem(self.trackingPathGroup)
+
+            self.trackingPathGroup.setDataFrame(self.df)
 
             self.evaluate()
 
@@ -190,27 +262,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.inputScene.setSceneRect(rect)
         self.inputScene.addItem(self.inputPixmapItem)
 
-        self.movablePolyLine.setRect(self.inputScene.sceneRect())
-
-        self.movablePolyLine.setPoints([[20,20],[100,100],[150,200]])
-
-        # self.circle = QGraphicsEllipseItem()
-        # self.circle.setRect(10, 10, 50, 50)
-        # self.circle.setFlags(QGraphicsItem.ItemIsMovable)
-        # self.inputScene.addItem(self.circle)
-
-        pixmapItem = QGraphicsPixmapItem(QPixmap.fromImage(qimg))
-        pixmapItem.setOpacity(0.2)
-        # self.overlayScene.setSceneRect(rect)
-        # self.overlayScene.addItem(pixmapItem)
-
-        self.frameBuffer.put(pixmapItem)
-        self.frameBufferItemGroup.addToGroup(pixmapItem)
-        if self.frameBuffer.qsize() > 10:
-            item = self.frameBuffer.get()
-            self.frameBufferItemGroup.removeFromGroup(item)
-            # self.overlayScene.removeItem(item)
-
         self.inputGraphicsView.viewport().update()
         self.graphicsViewResized()
 
@@ -226,7 +277,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixmap.rect()), QtCore.Qt.KeepAspectRatio)
 
     def evaluate(self):
-        pass
+        qimg = misc.cvMatToQImage(self.cv_img)
+        pixmapItem = QGraphicsPixmapItem(QPixmap.fromImage(qimg))
+        pixmapItem.setOpacity(0.2)
+
+        self.frameBuffer.put(pixmapItem)
+        self.frameBufferItemGroup.addToGroup(pixmapItem)
+        if self.frameBuffer.qsize() > 10:
+            item = self.frameBuffer.get()
+            self.frameBufferItemGroup.removeFromGroup(item)
+
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setPoints(self.currentFrameNo)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
