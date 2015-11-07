@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\ui_main_window_base.ui'
 #
-# Created by: PyQt5 UI code generator 5.4.2
+# Created by: PyQt5 UI code generator 5.5
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -111,10 +111,19 @@ class Ui_MainWindowBase(object):
         self.menubar = QtWidgets.QMenuBar(MainWindowBase)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 902, 21))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
         MainWindowBase.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindowBase)
         self.statusbar.setObjectName("statusbar")
         MainWindowBase.setStatusBar(self.statusbar)
+        self.actionOpenCSVFile = QtWidgets.QAction(MainWindowBase)
+        self.actionOpenCSVFile.setObjectName("actionOpenCSVFile")
+        self.actionSaveCSVFile = QtWidgets.QAction(MainWindowBase)
+        self.actionSaveCSVFile.setObjectName("actionSaveCSVFile")
+        self.menuFile.addAction(self.actionOpenCSVFile)
+        self.menuFile.addAction(self.actionSaveCSVFile)
+        self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindowBase)
         QtCore.QMetaObject.connectSlotsByName(MainWindowBase)
@@ -129,6 +138,9 @@ class Ui_MainWindowBase(object):
         self.label.setText(_translate("MainWindowBase", "Radius:"))
         self.lineCheckBox.setText(_translate("MainWindowBase", "Line"))
         self.circleCheckBox.setText(_translate("MainWindowBase", "Circle"))
+        self.menuFile.setTitle(_translate("MainWindowBase", "File"))
+        self.actionOpenCSVFile.setText(_translate("MainWindowBase", "Open CSV File"))
+        self.actionSaveCSVFile.setText(_translate("MainWindowBase", "Save CSV FIle"))
 
 from .overlaid_graphics_view import OverlaidGraphicsView
 from .video_playback_widget import VideoPlaybackWidget

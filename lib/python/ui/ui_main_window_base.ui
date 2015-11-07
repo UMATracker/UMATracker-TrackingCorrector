@@ -184,8 +184,26 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpenCSVFile"/>
+    <addaction name="actionSaveCSVFile"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpenCSVFile">
+   <property name="text">
+    <string>Open CSV File</string>
+   </property>
+  </action>
+  <action name="actionSaveCSVFile">
+   <property name="text">
+    <string>Save CSV FIle</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
