@@ -1,7 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys
+import os, sys, six
+
+if six.PY2:
+    reload(sys)
+    sys.setdefaultencoding('UTF8')
+
+# determine if application is a script file or frozen exe
+if getattr(sys, 'frozen', False):
+    currentDirPath = sys._MEIPASS
+    import win32api
+    win32api.SetDllDirectory(sys._MEIPASS)
+    win32api.SetDllDirectory(os.path.join(sys._MEIPASS, 'dll'))
+elif __file__:
+    currentDirPath = os.getcwd()
+
+# currentDirPath = os.path.abspath(os.path.dirname(__file__) )
+sampleDataPath = os.path.join(currentDirPath,"data")
+userDir        = os.path.expanduser('~')
+
 from queue import Queue
 
 from PyQt5 import QtCore, QtWidgets
@@ -19,10 +37,6 @@ from lib.python.ui.ui_main_window_base import Ui_MainWindowBase
 
 # from lib.python.ui.tracking_path import TrackingPath
 from lib.python.ui.tracking_path_group import TrackingPathGroup
-
-currentDirPath = os.path.abspath(os.path.dirname(__file__) )
-sampleDataPath = os.path.join(currentDirPath,"data")
-userDir        = os.path.expanduser('~')
 
 # Log file setting.
 # import logging
@@ -186,7 +200,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         # QGraphicsView.mouseReleaseEvent(self.inputGraphicsView, event)
 
     def menuInit(self):
-        pass
+        self.actionSaveCSVFile.triggered.connect(self.saveCSVFile)
+        self.actionOpenCSVFile.triggered.connect(self.openCSVFile)
 
     def openVideoFile(self, activated=False, filePath = None):
         if filePath is None:
@@ -244,6 +259,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
             self.trackingPathGroup.setDataFrame(self.df)
 
             self.evaluate()
+
+    def saveCSVFile(self, activated=False, filePath = None):
+        if self.df is not None:
+            filePath, _ = QFileDialog.getSaveFileName(None, 'Save CSV File', userDir, "CSV files (*.csv)")
+
+            if len(filePath) is not 0:
+                logger.debug("Saving CSV file: {0}".format(filePath))
+                df = self.df.copy()
+                col_n = df.as_matrix().shape[1]/2
+
+                col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(col_n)]).flatten()
+                print(col_names)
+
+                self.df.columns = col_names
+                df.to_csv(filePath)
 
     def updateInputGraphicsView(self):
         print("update")
