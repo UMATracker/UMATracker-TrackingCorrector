@@ -20,9 +20,15 @@ try:
 except AttributeError:
     _fromUtf8 = lambda s: s
 
+import os
+
+if getattr(sys, 'frozen', False):
+    currentDirPath = sys._MEIPASS
+elif __file__:
+    currentDirPath = os.getcwd()
 
 vs_core = vs.get_core()
-vs_core.std.LoadPlugin('c:/plugins/ffms2.dll')
+vs_core.std.LoadPlugin(os.path.join(currentDirPath, 'dll', 'ffms2.dll'))
 
 class VideoPlaybackWidget(QtWidgets.QWidget, Ui_VideoPlaybackWidget):
     frameChanged = pyqtSignal(np.ndarray, int)
