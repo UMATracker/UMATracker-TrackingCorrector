@@ -67,6 +67,7 @@ class Ui_MainWindowBase(object):
         self.horizontalLayout_5.addWidget(self.label_2)
         self.frameNoSpinBox = QtWidgets.QSpinBox(self.horizontalWidget)
         self.frameNoSpinBox.setMinimum(1)
+        self.frameNoSpinBox.setMaximum(1000)
         self.frameNoSpinBox.setObjectName("frameNoSpinBox")
         self.horizontalLayout_5.addWidget(self.frameNoSpinBox)
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.horizontalWidget)
