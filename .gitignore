@@ -9,4 +9,5 @@ Thumbs.db
 *.log
 *~
 *.swp
-*.swo
+
+!main.spec
