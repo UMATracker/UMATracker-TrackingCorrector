@@ -10,9 +10,10 @@ if six.PY2:
 # determine if application is a script file or frozen exe
 if getattr(sys, 'frozen', False):
     currentDirPath = sys._MEIPASS
-    import win32api
-    win32api.SetDllDirectory(sys._MEIPASS)
-    win32api.SetDllDirectory(os.path.join(sys._MEIPASS, 'dll'))
+    if os.name == 'nt':
+        import win32api
+        win32api.SetDllDirectory(sys._MEIPASS)
+        win32api.SetDllDirectory(os.path.join(sys._MEIPASS, 'dll'))
 elif __file__:
     currentDirPath = os.getcwd()
 
@@ -25,7 +26,7 @@ from queue import Queue
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton
 from PyQt5.QtGui import QPixmap, QImage, QPainter
-from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent
+from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent, QMutex
 
 import cv2
 import numpy as np
@@ -63,6 +64,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.df = None
         self.trackingPathGroup = None
         self.colors = []
+
+        self.mutex = QMutex()
 
         self.circleCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
         self.lineCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
@@ -132,11 +135,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.videoPlaybackWidget.frameChanged.connect(self.setFrame)
 
     def setFrame(self, frame, frameNo):
+        self.mutex.lock()
         if frame is not None:
             self.cv_img = frame
             self.currentFrameNo = frameNo
             self.updateInputGraphicsView()
             self.evaluate()
+        self.mutex.unlock()
 
     def imgInit(self):
         self.cv_img = cv2.imread(os.path.join(sampleDataPath,"color_filter_test.png"))
