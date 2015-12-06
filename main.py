@@ -270,7 +270,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 df = self.df.copy()
                 col_n = df.as_matrix().shape[1]/2
 
-                col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(math.ceil(col_n))]).flatten()
+                col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(int(round(col_n)))]).flatten()
                 df.columns = pd.Index(col_names)
                 df.to_csv(filePath)
 
