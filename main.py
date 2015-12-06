@@ -131,7 +131,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
     def videoPlaybackInit(self):
         self.videoPlaybackWidget.hide()
-        self.videoPlaybackWidget.frameChanged.connect(self.setFrame)
+        self.videoPlaybackWidget.frameChanged.connect(self.setFrame, Qt.QueuedConnection)
 
     def setFrame(self, frame, frameNo):
         if frame is not None:
