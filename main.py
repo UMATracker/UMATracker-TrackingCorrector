@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, six
+import os, sys, six, math
 
 if six.PY2:
     reload(sys)
@@ -270,10 +270,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 df = self.df.copy()
                 col_n = df.as_matrix().shape[1]/2
 
-                col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(col_n)]).flatten()
-                print(col_names)
-
-                self.df.columns = col_names
+                col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(math.ceil(col_n))]).flatten()
+                df.columns = pd.Index(col_names)
                 df.to_csv(filePath)
 
     def updateInputGraphicsView(self):
