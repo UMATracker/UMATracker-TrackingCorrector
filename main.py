@@ -286,8 +286,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
         p = QPainter(self.inputPixmap)
         sourceRect = self.inputPixmapRenderScene.sceneRect()
-        targetRect = self.inputPixmap.rect()
-        self.inputPixmapRenderScene.render(p, QRectF(targetRect), QRectF(sourceRect), QtCore.Qt.IgnoreAspectRatio)
+        self.inputPixmapRenderScene.render(p, QRectF(sourceRect), QRectF(sourceRect), QtCore.Qt.IgnoreAspectRatio)
 
         self.inputPixmapItem = QGraphicsPixmapItem(self.inputPixmap)
         rect = QtCore.QRectF(self.inputPixmap.rect())
