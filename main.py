@@ -25,13 +25,14 @@ from queue import Queue
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton
-from PyQt5.QtGui import QPixmap, QImage, QPainter
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
 from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent, Qt
 
 import cv2
 import numpy as np
 import pandas as pd
 
+import icon
 
 from lib.python import misc
 from lib.python.ui.ui_main_window_base import Ui_MainWindowBase
@@ -324,6 +325,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = Ui_MainWindow(currentDirPath)
+    MainWindow.setWindowIcon(QIcon(':/icon/icon.ico'))
     MainWindow.show()
     sys.exit(app.exec_())
 
