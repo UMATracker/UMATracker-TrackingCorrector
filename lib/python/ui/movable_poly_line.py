@@ -53,6 +53,16 @@ class MovablePolyLine(QGraphicsObject):
         return self.radius
 
     def setPoints(self, ps=None, flags=None):
+        if ps is not None and self.points is not None:
+            if len(ps)==len(self.points):
+                self.points = ps
+                for item, point in zip(self.itemList, self.points):
+                    item.setPos(*point)
+                    item.mouseMoveEvent = self.generateItemMouseMoveEvent(item, point)
+                    item.mousePressEvent = self.generateItemMousePressEvent(item, point)
+                self.update()
+                return
+
         scene = self.scene()
         if scene is not None:
             for item in self.itemList:
