@@ -217,7 +217,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
             self.videoPlaybackWidget.show()
 
-            self.evaluate()
+            # self.evaluate()
 
             return True
         else:
@@ -305,6 +305,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixmap.rect()), QtCore.Qt.KeepAspectRatio)
 
     def evaluate(self):
+        if not self.videoPlaybackWidget.isOpened():
+            return
+
         qimg = misc.cvMatToQImage(self.cv_img)
         pixmapItem = QGraphicsPixmapItem(QPixmap.fromImage(qimg))
         pixmapItem.setOpacity(0.2)
