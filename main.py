@@ -296,8 +296,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
     def eventFilter(self, obj, event):
         if obj is self.inputGraphicsView.viewport() and event.type()==QEvent.Wheel:
             return True
-        else:
-            return False
+
+        if event.type() == QEvent.KeyPress:
+            if Qt.Key_Home <= event.key() <= Qt.Key_PageDown:
+                self.videoPlaybackWidget.playbackSlider.keyPressEvent(event)
+                return True
+
+        return False
 
     def graphicsViewResized(self, event=None):
         print("resize")
@@ -327,5 +332,6 @@ if __name__ == "__main__":
     MainWindow.setWindowIcon(QIcon(':/icon/icon.ico'))
     MainWindow.setWindowTitle('UMATracker-TrackingCorrector')
     MainWindow.show()
+    app.installEventFilter(MainWindow)
     sys.exit(app.exec_())
 
