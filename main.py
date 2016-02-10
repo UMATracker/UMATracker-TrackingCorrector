@@ -25,7 +25,7 @@ from queue import Queue
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
-from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent, Qt
+from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent, Qt, pyqtSignal
 
 import cv2
 import numpy as np
@@ -53,6 +53,8 @@ logger.setLevel(DEBUG)
 logger.addHandler(handler)
 
 class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
+    updateFrame = pyqtSignal()
+
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
         self.setupUi(self)
@@ -69,8 +71,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.lineCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
         self.overlayCheckBox.stateChanged.connect(self.overlayCheckBoxStateChanged)
         self.radiusSpinBox.valueChanged.connect(self.radiusSpinBoxValueChanged)
-
         self.frameNoSpinBox.valueChanged.connect(self.frameNoSpinBoxValueChanged)
+
+        self.updateFrame.connect(self.videoPlaybackWidget.videoPlayback)
 
     def overlayCheckBoxStateChanged(self, s):
         if self.overlayCheckBox.isChecked():
@@ -320,6 +323,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
         if self.trackingPathGroup is not None:
             self.trackingPathGroup.setPoints(self.currentFrameNo)
+
+        self.updateFrame.emit()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
