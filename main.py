@@ -65,13 +65,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
         self.df = None
         self.trackingPathGroup = None
+        self.currentFrameNo = 0
         self.colors = []
 
         self.circleCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
         self.lineCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
+        self.markItemCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
+
         self.overlayCheckBox.stateChanged.connect(self.overlayCheckBoxStateChanged)
         self.radiusSpinBox.valueChanged.connect(self.radiusSpinBoxValueChanged)
         self.frameNoSpinBox.valueChanged.connect(self.frameNoSpinBoxValueChanged)
+        self.markDeltaSpinBox.valueChanged.connect(self.markDeltaSpinBoxValueChanged)
 
         self.updateFrame.connect(self.videoPlaybackWidget.videoPlayback)
 
@@ -84,15 +88,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.updateInputGraphicsView()
 
     def polyLineCheckBoxStateChanged(self, s):
-        overlayFrameNo = self.frameNoSpinBox.value()
-
-        min_value = max(self.currentFrameNo-overlayFrameNo,0)
-        current_pos = self.currentFrameNo - min_value
-
         if self.trackingPathGroup is not None:
-            self.trackingPathGroup.setDrawItem(current_pos, self.circleCheckBox.isChecked())
+            self.trackingPathGroup.setDrawItem(self.circleCheckBox.isChecked())
             self.trackingPathGroup.setDrawLine(self.lineCheckBox.isChecked())
+            self.trackingPathGroup.setDrawMarkItem(self.markItemCheckBox.isChecked())
 
+            self.updateInputGraphicsView()
+
+    def markDeltaSpinBoxValueChanged(self, value):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setMarkDelta(self.markDeltaSpinBox.value())
             self.updateInputGraphicsView()
 
     def radiusSpinBoxValueChanged(self, value):
@@ -219,8 +224,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 return False
 
             self.videoPlaybackWidget.show()
+            self.cv_img = self.videoPlaybackWidget.getCurrentFrame()
 
-            # self.evaluate()
+            self.initialize()
 
             return True
         else:
@@ -262,7 +268,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
             self.trackingPathGroup.setDataFrame(self.df)
 
-            self.evaluate()
+            self.initialize()
 
     def saveCSVFile(self, activated=False, filePath = None):
         if self.df is not None:
@@ -311,6 +317,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         print("resize")
         print(self.inputScene)
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixmap.rect()), QtCore.Qt.KeepAspectRatio)
+
+    def initialize(self):
+        if self.df is None or not self.videoPlaybackWidget.isOpened():
+            return
+
+        self.trackingPathGroup.setPoints(self.currentFrameNo)
+        r = self.trackingPathGroup.autoAdjustRadius(self.cv_img.shape)
+        self.radiusSpinBox.setValue(r)
+        self.trackingPathGroup.autoAdjustLineWidth(self.cv_img.shape)
+
+        self.trackingPathGroup.setItemsAreMovable(True)
 
     def evaluate(self):
         if not self.videoPlaybackWidget.isOpened():

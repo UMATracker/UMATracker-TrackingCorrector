@@ -47,7 +47,7 @@
         </widget>
        </item>
        <item>
-        <widget class="VideoPlaybackWidget" name="videoPlaybackWidget"/>
+        <widget class="VideoPlaybackWidget" name="videoPlaybackWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -68,41 +68,62 @@
         <widget class="OverlaidGraphicsView" name="zoomedGraphicsView"/>
        </item>
        <item>
-        <widget class="QWidget" name="gridWidget" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <layout class="QFormLayout" name="formLayout_2">
-          <item row="0" column="0">
-           <widget class="QWidget" name="horizontalWidget" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string># of frames:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QSpinBox" name="frameNoSpinBox">
-               <property name="minimum">
-                <number>1</number>
-               </property>
-               <property name="maximum">
-                <number>1000</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
+        <widget class="QWidget" name="horizontalWidget" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Path length:</string>
+            </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="overlayCheckBox">
+          <item>
+           <widget class="QSpinBox" name="frameNoSpinBox">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>10000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="lineCheckBox">
             <property name="text">
-             <string>Overlay</string>
+             <string>Visible</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="horizontalWidget" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>CIrcle radius:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="radiusSpinBox">
+            <property name="minimum">
+             <double>5.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="circleCheckBox">
+            <property name="text">
+             <string>Visible</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -111,67 +132,43 @@
        </item>
        <item>
         <widget class="QWidget" name="formWidget" native="true">
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QWidget" name="horizontalWidget" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Radius:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="radiusSpinBox">
-               <property name="minimum">
-                <double>5.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="lineCheckBox">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Line</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
+             <string>Mark interval:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="circleCheckBox">
+          <item>
+           <widget class="QSpinBox" name="markDeltaSpinBox">
+            <property name="minimum">
+             <number>30</number>
+            </property>
+            <property name="maximum">
+             <number>10000</number>
+            </property>
+            <property name="value">
+             <number>1800</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="markItemCheckBox">
             <property name="text">
-             <string>Circle</string>
+             <string>Visible</string>
             </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QWidget" name="horizontalWidget" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout_4"/>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QCheckBox" name="overlayCheckBox">
+         <property name="text">
+          <string>Overlay</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -184,7 +181,7 @@
      <x>0</x>
      <y>0</y>
      <width>902</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

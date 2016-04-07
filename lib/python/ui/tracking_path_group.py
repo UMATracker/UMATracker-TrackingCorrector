@@ -12,9 +12,10 @@ class TrackingPathGroup(QGraphicsObject):
     def __init__(self, parent=None):
         super(TrackingPathGroup, self).__init__(parent)
 
-        self.setZValue(1000)
+        self.setZValue(10)
         self.drawItemFlag = True
         self.drawLineFlag = True
+        self.areItemsMovable = False
         self.df = None
         self.itemList = []
         self.selectedItemList = []
@@ -24,6 +25,7 @@ class TrackingPathGroup(QGraphicsObject):
         self.currentFrameNo = 0
         self.overlayFrameNo = 1
         self.radius = 1.0
+        self.lineWidth = 5
 
     def setDataFrame(self, df):
         self.df = df
@@ -42,11 +44,12 @@ class TrackingPathGroup(QGraphicsObject):
                 del item
         self.itemList.clear()
 
-        for rgb in self.colors:
+        for i, rgb in enumerate(self.colors):
             trackingPath = TrackingPath(self)
             trackingPath.setRect(scene.sceneRect())
             trackingPath.setColor(rgb)
             trackingPath.itemSelected.connect(self.itemSelected)
+            trackingPath.setText(str(i))
 
             self.itemList.append(trackingPath)
 
@@ -58,7 +61,7 @@ class TrackingPathGroup(QGraphicsObject):
                 removedItem = self.selectedItemList.pop(0)
                 removedItem.selected = False
                 removedItem.itemType = QGraphicsEllipseItem
-                removedItem.setPoints()
+                removedItem.updateLine()
         else:
             try:
                 self.selectedItemList.remove(item)
@@ -86,12 +89,20 @@ class TrackingPathGroup(QGraphicsObject):
         array1[:, :] = tmp
 
         for item in self.selectedItemList:
-            item.setPoints()
+            item.updateLine()
 
-    def setDrawItem(self, pos, flag):
+    def setMarkDelta(self, delta):
+        for item in self.itemList:
+            item.setMarkDelta(delta)
+
+    def setDrawItem(self, flag):
         self.drawItemFlag = flag
         for item in self.itemList:
-            item.setDrawItem(pos, flag)
+            item.setDrawItem(flag)
+
+    def setDrawMarkItem(self, flag):
+        for item in self.itemList:
+            item.setDrawMarkItem(flag)
 
     def setDrawLine(self, flag):
         self.drawLineFlag = flag
@@ -107,6 +118,12 @@ class TrackingPathGroup(QGraphicsObject):
         self.overlayFrameNo = n
         self.setPoints()
 
+    def setItemsAreMovable(self, flag):
+        self.areItemsMovable = flag
+
+        for item in self.itemList:
+            item.setItemIsMovable(flag)
+
     def setPoints(self, frameNo=None):
         if frameNo is not None:
             self.currentFrameNo = frameNo
@@ -116,14 +133,16 @@ class TrackingPathGroup(QGraphicsObject):
 
         for i, item in enumerate(self.itemList):
             array = self.df.loc[min_value:max_value, i].as_matrix()
-            flags = np.full(len(array), False, dtype=np.bool)
-            if self.drawItemFlag and pos < len(array):
-                flags[pos] = True
+            if pos not in range(len(array)):
+                pos = None
 
-            item.setPoints(array, flags)
+            item.setPoints(array, pos)
 
     def getRadius(self):
         return self.radius
+
+    def getColors(self):
+        return self.colors
 
     def setRect(self, rect):
         self.rect = rect
@@ -133,3 +152,25 @@ class TrackingPathGroup(QGraphicsObject):
 
     def paint(self, painter, option, widget):
         pass
+
+    def setLineWidth(self, w):
+        self.lineWidth = w
+        for item in self.itemList:
+            item.setLineWidth(w)
+
+    def getLineWidth(self):
+        return self.lineWidth
+
+    def autoAdjustLineWidth(self, shape):
+        # TODO: かなり適当
+        m = np.max(shape)
+        lw = max(float(2.5*m/600), 1.0)
+        self.setLineWidth(lw)
+        return self.getLineWidth()
+
+    def autoAdjustRadius(self, shape):
+        # TODO: かなり適当
+        m = np.max(shape)
+        r = max(float(5.0*m/600), 5.0)
+        self.setRadius(r)
+        return int(self.getRadius())
