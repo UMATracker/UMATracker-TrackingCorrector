@@ -289,8 +289,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 df.to_csv(filePath)
 
     def updateInputGraphicsView(self):
-        print("update")
-        # self.inputScene.clear()
         self.inputScene.removeItem(self.inputPixmapItem)
         qimg = misc.cvMatToQImage(self.cv_img)
         self.inputPixmap = QPixmap.fromImage(qimg)
@@ -319,8 +317,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         return False
 
     def graphicsViewResized(self, event=None):
-        print("resize")
-        print(self.inputScene)
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixmap.rect()), QtCore.Qt.KeepAspectRatio)
 
     def initialize(self):
