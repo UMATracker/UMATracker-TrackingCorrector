@@ -1,4 +1,5 @@
 from .tracking_path import TrackingPath
+from .color_selector_dialog import ColorSelectorDialog
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton, QGraphicsObject, QMenu, QAction
@@ -36,6 +37,7 @@ class TrackingPathGroup(QGraphicsObject):
         self.df.columns = pd.MultiIndex.from_tuples(tuple(zip(*index)))
 
         self.colors = np.random.randint(0, 255, (shape[1]/2, 3)).tolist()
+        self.colors = [QColor(*rgb) for rgb in self.colors]
 
         scene = self.scene()
         if scene is not None:
@@ -174,3 +176,16 @@ class TrackingPathGroup(QGraphicsObject):
         r = max(float(5.0*m/600), 5.0)
         self.setRadius(r)
         return int(self.getRadius())
+
+    def openColorSelectorDialog(self, parent):
+        dialog = ColorSelectorDialog(parent)
+
+        for i, rgb in enumerate(self.colors):
+            dialog.addRow(i, rgb)
+        dialog.colorChanged.connect(self.changeTrackingPathColor)
+        dialog.show()
+
+    @pyqtSlot(int, QColor)
+    def changeTrackingPathColor(self, i, color):
+        self.colors[i] = color
+        self.itemList[i].setColor(color)

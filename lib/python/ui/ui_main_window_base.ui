@@ -191,7 +191,14 @@
     <addaction name="actionOpenCSVFile"/>
     <addaction name="actionSaveCSVFile"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionTrackingPathColor"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpenCSVFile">
@@ -202,6 +209,11 @@
   <action name="actionSaveCSVFile">
    <property name="text">
     <string>Save CSV FIle</string>
+   </property>
+  </action>
+  <action name="actionTrackingPathColor">
+   <property name="text">
+    <string>Tracking Path Color</string>
    </property>
   </action>
  </widget>

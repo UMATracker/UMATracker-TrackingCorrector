@@ -108,7 +108,7 @@ class TrackingPath(QGraphicsObject):
             markItem.setRect(rect_half)
 
     def setColor(self, rgb):
-        self.color = QColor(*rgb)
+        self.color = rgb
         self.item.setBrush(self.color)
 
     def getRadius(self):

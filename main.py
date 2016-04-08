@@ -211,6 +211,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
     def menuInit(self):
         self.actionSaveCSVFile.triggered.connect(self.saveCSVFile)
         self.actionOpenCSVFile.triggered.connect(self.openCSVFile)
+        self.actionTrackingPathColor.triggered.connect(self.openTrackingPathColorSelectorDialog)
+
+    def openTrackingPathColorSelectorDialog(self, activated=False):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.openColorSelectorDialog(self)
 
     def openVideoFile(self, activated=False, filePath = None):
         if filePath is None:

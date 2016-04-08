@@ -109,6 +109,8 @@ class Ui_MainWindowBase(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuSettings = QtWidgets.QMenu(self.menubar)
+        self.menuSettings.setObjectName("menuSettings")
         MainWindowBase.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindowBase)
         self.statusbar.setObjectName("statusbar")
@@ -117,9 +119,13 @@ class Ui_MainWindowBase(object):
         self.actionOpenCSVFile.setObjectName("actionOpenCSVFile")
         self.actionSaveCSVFile = QtWidgets.QAction(MainWindowBase)
         self.actionSaveCSVFile.setObjectName("actionSaveCSVFile")
+        self.actionTrackingPathColor = QtWidgets.QAction(MainWindowBase)
+        self.actionTrackingPathColor.setObjectName("actionTrackingPathColor")
         self.menuFile.addAction(self.actionOpenCSVFile)
         self.menuFile.addAction(self.actionSaveCSVFile)
+        self.menuSettings.addAction(self.actionTrackingPathColor)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(MainWindowBase)
         QtCore.QMetaObject.connectSlotsByName(MainWindowBase)
@@ -137,8 +143,10 @@ class Ui_MainWindowBase(object):
         self.markItemCheckBox.setText(_translate("MainWindowBase", "Visible"))
         self.overlayCheckBox.setText(_translate("MainWindowBase", "Overlay"))
         self.menuFile.setTitle(_translate("MainWindowBase", "File"))
+        self.menuSettings.setTitle(_translate("MainWindowBase", "Settings"))
         self.actionOpenCSVFile.setText(_translate("MainWindowBase", "Open CSV File"))
         self.actionSaveCSVFile.setText(_translate("MainWindowBase", "Save CSV FIle"))
+        self.actionTrackingPathColor.setText(_translate("MainWindowBase", "Tracking Path Color"))
 
 from .overlaid_graphics_view import OverlaidGraphicsView
 from .video_playback_widget import VideoPlaybackWidget
