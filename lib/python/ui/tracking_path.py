@@ -20,6 +20,7 @@ class TrackingPath(QGraphicsObject):
         self.setZValue(10)
         self.polygon = QPolygonF()
         self.radius = 5.0
+        self.lineWidth = 1.0
         self.itemList = []
         self.rect = QRectF()
         self.color = QColor(255,0,0)
