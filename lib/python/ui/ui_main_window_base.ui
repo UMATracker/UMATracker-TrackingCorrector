@@ -87,16 +87,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QCheckBox" name="lineCheckBox">
-            <property name="text">
-             <string>Visible</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
@@ -114,16 +104,6 @@
            <widget class="QDoubleSpinBox" name="radiusSpinBox">
             <property name="minimum">
              <double>5.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="circleCheckBox">
-            <property name="text">
-             <string>Visible</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -150,13 +130,6 @@
             </property>
             <property name="value">
              <number>1800</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="markItemCheckBox">
-            <property name="text">
-             <string>Visible</string>
             </property>
            </widget>
           </item>
@@ -189,13 +162,23 @@
      <string>File</string>
     </property>
     <addaction name="actionOpenCSVFile"/>
-    <addaction name="actionSaveCSVFile"/>
+    <addaction name="actionOpenJSONFile"/>
+    <addaction name="actionOpenColorFile"/>
+    <addaction name="separator"/>
+    <addaction name="actionSaveDataFiles"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
-     <string>Settings</string>
+     <string>View</string>
     </property>
     <addaction name="actionTrackingPathColor"/>
+    <addaction name="separator"/>
+    <addaction name="actionPath"/>
+    <addaction name="actionCircle"/>
+    <addaction name="actionIntervalMark"/>
+    <addaction name="actionShape"/>
+    <addaction name="actionSkeleton"/>
+    <addaction name="actionArrow"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
@@ -206,14 +189,90 @@
     <string>Open CSV File</string>
    </property>
   </action>
-  <action name="actionSaveCSVFile">
+  <action name="actionSaveDataFiles">
    <property name="text">
-    <string>Save CSV FIle</string>
+    <string>Save Data FIles</string>
    </property>
   </action>
   <action name="actionTrackingPathColor">
    <property name="text">
     <string>Tracking Path Color</string>
+   </property>
+  </action>
+  <action name="actionPath">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Path</string>
+   </property>
+  </action>
+  <action name="actionCircle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Circle</string>
+   </property>
+  </action>
+  <action name="actionIntervalMark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Interval Mark</string>
+   </property>
+  </action>
+  <action name="actionShape">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Shape</string>
+   </property>
+  </action>
+  <action name="actionSkeleton">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Skeleton</string>
+   </property>
+  </action>
+  <action name="actionArrow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Arrow</string>
+   </property>
+  </action>
+  <action name="actionOpenJSONFile">
+   <property name="text">
+    <string>Open JSON File</string>
+   </property>
+  </action>
+  <action name="actionOpenColorFile">
+   <property name="text">
+    <string>Open Color File</string>
    </property>
   </action>
  </widget>

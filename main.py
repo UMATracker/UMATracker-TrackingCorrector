@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, six, math
+import os, sys, six, math, json
 
 if six.PY2:
     reload(sys)
@@ -24,8 +24,8 @@ from queue import Queue
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsItem, QGraphicsItemGroup, QGraphicsPixmapItem, QGraphicsEllipseItem, QFrame, QFileDialog, QPushButton
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon
-from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent, Qt, pyqtSignal
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QIcon, QColor
+from PyQt5.QtCore import QPoint, QPointF, QRectF, QEvent, Qt, pyqtSignal, pyqtSlot
 
 import cv2
 import numpy as np
@@ -38,6 +38,8 @@ from lib.python.ui.ui_main_window_base import Ui_MainWindowBase
 
 # from lib.python.ui.tracking_path import TrackingPath
 from lib.python.ui.tracking_path_group import TrackingPathGroup
+from lib.python.ui.movable_arrow import MovableArrowGroup
+from lib.python.ui.movable_line import MovableLineGroup
 
 # Log file setting.
 # import logging
@@ -53,7 +55,6 @@ logger.setLevel(DEBUG)
 logger.addHandler(handler)
 
 class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
-    updateFrame = pyqtSignal()
 
     def __init__(self):
         super(Ui_MainWindow, self).__init__()
@@ -63,21 +64,23 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.imgInit()
         self.menuInit()
 
-        self.df = None
+        self.df = {}
         self.trackingPathGroup = None
-        self.currentFrameNo = 0
-        self.colors = []
+        self.movableArrowGroup = None
 
-        self.circleCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
-        self.lineCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
-        self.markItemCheckBox.stateChanged.connect(self.polyLineCheckBoxStateChanged)
+        self.line_data_dict = {}
+        self.line_item_dict = {}
+
+        self.file_name_dict = {}
+
+        self.currentFrameNo = 0
+
+        self.colors = None
 
         self.overlayCheckBox.stateChanged.connect(self.overlayCheckBoxStateChanged)
         self.radiusSpinBox.valueChanged.connect(self.radiusSpinBoxValueChanged)
         self.frameNoSpinBox.valueChanged.connect(self.frameNoSpinBoxValueChanged)
         self.markDeltaSpinBox.valueChanged.connect(self.markDeltaSpinBoxValueChanged)
-
-        self.updateFrame.connect(self.videoPlaybackWidget.videoPlayback)
 
     def overlayCheckBoxStateChanged(self, s):
         if self.overlayCheckBox.isChecked():
@@ -86,14 +89,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
             self.frameBufferItemGroup.hide()
 
         self.updateInputGraphicsView()
-
-    def polyLineCheckBoxStateChanged(self, s):
-        if self.trackingPathGroup is not None:
-            self.trackingPathGroup.setDrawItem(self.circleCheckBox.isChecked())
-            self.trackingPathGroup.setDrawLine(self.lineCheckBox.isChecked())
-            self.trackingPathGroup.setDrawMarkItem(self.markItemCheckBox.isChecked())
-
-            self.updateInputGraphicsView()
 
     def markDeltaSpinBoxValueChanged(self, value):
         if self.trackingPathGroup is not None:
@@ -131,6 +126,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
             return
         elif ext == ".csv":
             self.openCSVFile(filePath=filePath)
+        elif ext == ".json":
+            self.openJSONFile(filePath=filePath)
+        elif ext == ".color":
+            self.openColorFile(filePath=filePath)
         elif self.openImageFile(filePath=filePath):
             return
         elif self.openVideoFile(filePath=filePath):
@@ -209,9 +208,59 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         # QGraphicsView.mouseReleaseEvent(self.inputGraphicsView, event)
 
     def menuInit(self):
-        self.actionSaveCSVFile.triggered.connect(self.saveCSVFile)
+        self.actionSaveDataFiles.triggered.connect(self.saveDataFiles)
         self.actionOpenCSVFile.triggered.connect(self.openCSVFile)
+        self.actionOpenCSVFile.triggered.connect(self.openJSONFile)
+        self.actionOpenCSVFile.triggered.connect(self.openJSONFile)
+
+        self.actionPath.triggered.connect(self.actionPathTriggered)
+        self.actionCircle.triggered.connect(self.actionCircleTriggered)
+        self.actionIntervalMark.triggered.connect(self.actionIntervalMarkTriggered)
+        self.actionShape.triggered.connect(self.actionShapeTriggered)
+        self.actionSkeleton.triggered.connect(self.actionSkeletonTriggered)
+        self.actionArrow.triggered.connect(self.actionArrowTriggered)
+
         self.actionTrackingPathColor.triggered.connect(self.openTrackingPathColorSelectorDialog)
+
+    def actionPathTriggered(self, checked):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setDrawLine(checked)
+            if not checked or self.actionIntervalMark.isChecked():
+                self.trackingPathGroup.setDrawMarkItem(checked)
+            self.updateInputGraphicsView()
+
+    def actionCircleTriggered(self, checked):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setDrawItem(checked)
+            self.updateInputGraphicsView()
+
+    def actionIntervalMarkTriggered(self, checked):
+        if self.trackingPathGroup is not None:
+            self.trackingPathGroup.setDrawMarkItem(checked)
+            self.updateInputGraphicsView()
+
+    def actionShapeTriggered(self, checked):
+        if 'shape' in self.line_item_dict.keys():
+            line_item = self.line_item_dict['shape']
+            if checked:
+                line_item.show()
+            else:
+                line_item.hide()
+
+    def actionSkeletonTriggered(self, checked):
+        if 'skeleton' in self.line_item_dict.keys():
+            line_item = self.line_item_dict['skeleton']
+            if checked:
+                line_item.show()
+            else:
+                line_item.hide()
+
+    def actionArrowTriggered(self, checked):
+        if self.movableArrowGroup is not None:
+            if checked:
+                self.movableArrowGroup.show()
+            else:
+                self.movableArrowGroup.hide()
 
     def openTrackingPathColorSelectorDialog(self, activated=False):
         if self.trackingPathGroup is not None:
@@ -262,31 +311,111 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
             filePath, _ = QFileDialog.getOpenFileName(None, 'Open CSV File', userDir, 'CSV files (*.csv)')
 
         if len(filePath) is not 0:
-            self.df = pd.read_csv(filePath, index_col=0)
+            df = pd.read_csv(filePath, index_col=0)
+            name = df.index.name
 
-            if self.trackingPathGroup is not None:
-                self.inputScene.removeItem(self.trackingPathGroup)
+            if name is None:
+                name = 'position'
 
-            self.trackingPathGroup = TrackingPathGroup()
-            self.trackingPathGroup.setRect(self.inputScene.sceneRect())
-            self.inputScene.addItem(self.trackingPathGroup)
+            self.df[name] = df
+            self.file_name_dict[name] = filePath
 
-            self.trackingPathGroup.setDataFrame(self.df)
+            if name is None or name=='position':
+                if self.trackingPathGroup is not None:
+                    self.inputScene.removeItem(self.trackingPathGroup)
+
+                self.trackingPathGroup = TrackingPathGroup()
+                self.trackingPathGroup.setRect(self.inputScene.sceneRect())
+                self.inputScene.addItem(self.trackingPathGroup)
+
+                if not self.actionPath.isChecked():
+                    self.trackingPathGroup.setDrawLine(False)
+                if not self.actionCircle.isChecked():
+                    self.trackingPathGroup.setDrawItem(False)
+                if not self.actionIntervalMark.isChecked():
+                    self.trackingPathGroup.setDrawMarkItem(False)
+
+                self.trackingPathGroup.setDataFrame(self.df['position'])
+            elif name=='arrow':
+                if self.movableArrowGroup is not None:
+                    self.inputScene.removeItem(self.movableArrowGroup)
+
+                self.movableArrowGroup = MovableArrowGroup()
+                self.inputScene.addItem(self.movableArrowGroup)
+                self.movableArrowGroup.edited.connect(self.arrowEdited)
+
+                if not self.actionArrow.isChecked():
+                    self.movableArrowGroup.hide()
+
+            if 'arrow' in self.df.keys() and 'position' in self.df.keys():
+                self.movableArrowGroup.setDataFrame(self.df['arrow'], self.df['position'])
 
             self.initialize()
 
-    def saveCSVFile(self, activated=False, filePath = None):
-        if self.df is not None:
-            filePath, _ = QFileDialog.getSaveFileName(None, 'Save CSV File', userDir, "CSV files (*.csv)")
+    def openColorFile(self, activated=False, filePath=None):
+        if filePath is None:
+            filePath, _ = QFileDialog.getOpenFileName(None, 'Open Color File', userDir, 'Color files (*.color)')
+
+        if len(filePath) is not 0:
+            self.colors = pd.read_csv(filePath, index_col=0).as_matrix().tolist()
+            self.colors = [QColor(*rgb) for rgb in self.colors]
+            self.setColorsToGraphicsObjects()
+
+    def openJSONFile(self, activated=False, filePath=None):
+        if filePath is None:
+            filePath, _ = QFileDialog.getOpenFileName(None, 'Open JSON File', userDir, 'JSON files (*.json)')
+
+        if len(filePath) is not 0:
+            with open(filePath) as f_p:
+                data = json.load(f_p)
+
+            name = data['name']
+            self.line_data_dict[name] = data
+            self.file_name_dict[name] = filePath
+
+            if name in self.line_item_dict.keys():
+                self.inputScene.removeItem(self.line_item_dict[name])
+
+            lines = MovableLineGroup()
+            lines.setData(data)
+            lines.setRect(self.inputScene.sceneRect())
+
+            if name=='shape' and not self.actionShape.isChecked():
+                lines.hide()
+
+            if name=='skeleton' and not self.actionSkeleton.isChecked():
+                lines.hide()
+
+            self.line_item_dict[name] = lines
+            self.inputScene.addItem(lines)
+
+            self.initialize()
+
+    def saveDataFiles(self, activated=False, filePath = None):
+        if len(self.df.keys())!=0:
+            for k, v in self.df.items():
+                f_name, f_ext = os.path.splitext(self.file_name_dict[k])
+                candidate_file_path = '{0}-fixed{1}'.format(f_name, f_ext)
+                filePath, _ = QFileDialog.getSaveFileName(None, 'Save CSV File', candidate_file_path, "CSV files (*.csv)")
+
+                if len(filePath) is not 0:
+                    logger.debug("Saving CSV file: {0}".format(filePath))
+                    df = v.copy()
+                    col_n = df.as_matrix().shape[1]/2
+
+                    col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(int(round(col_n)))]).flatten()
+                    df.columns = pd.Index(col_names)
+                    df.to_csv(filePath)
+
+        for k, v in self.line_data_dict.items():
+            f_name, f_ext = os.path.splitext(self.file_name_dict[k])
+            candidate_file_path = '{0}-fixed{1}'.format(f_name, f_ext)
+            filePath, _ = QFileDialog.getSaveFileName(None, 'Save JSON File', candidate_file_path, "JSON files (*.json)")
 
             if len(filePath) is not 0:
-                logger.debug("Saving CSV file: {0}".format(filePath))
-                df = self.df.copy()
-                col_n = df.as_matrix().shape[1]/2
-
-                col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(int(round(col_n)))]).flatten()
-                df.columns = pd.Index(col_names)
-                df.to_csv(filePath)
+                logger.debug("Saving JSON file: {0}".format(filePath))
+                with open(filePath, 'w') as f_p:
+                    json.dump(v, f_p)
 
     def updateInputGraphicsView(self):
         self.inputScene.removeItem(self.inputPixmapItem)
@@ -319,16 +448,36 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
     def graphicsViewResized(self, event=None):
         self.inputGraphicsView.fitInView(QtCore.QRectF(self.inputPixmap.rect()), QtCore.Qt.KeepAspectRatio)
 
+    def setColorsToGraphicsObjects(self):
+        # FIXME: データセットと色リストのサイズ整合性チェックが必要
+        if self.colors is not None:
+            if self.trackingPathGroup is not None:
+                self.trackingPathGroup.setColors(self.colors)
+
+            for k, v in self.line_item_dict.items():
+                v.setColors(self.colors)
+
     def initialize(self):
-        if self.df is None or not self.videoPlaybackWidget.isOpened():
+        if  not self.videoPlaybackWidget.isOpened():
             return
 
-        self.trackingPathGroup.setPoints(self.currentFrameNo)
-        r = self.trackingPathGroup.autoAdjustRadius(self.cv_img.shape)
-        self.radiusSpinBox.setValue(r)
-        self.trackingPathGroup.autoAdjustLineWidth(self.cv_img.shape)
+        if self.trackingPathGroup is not None:
+            r = self.trackingPathGroup.autoAdjustRadius(self.cv_img.shape)
+            self.radiusSpinBox.setValue(r)
+            self.trackingPathGroup.autoAdjustLineWidth(self.cv_img.shape)
 
-        self.trackingPathGroup.setItemsAreMovable(True)
+            self.trackingPathGroup.setItemsAreMovable(True)
+
+            if self.movableArrowGroup is not None:
+                pass
+
+        for k, v in self.line_item_dict.items():
+            v.autoAdjustLineWidth(self.cv_img.shape)
+            v.autoAdjustMarkSize(self.cv_img.shape)
+
+        self.setColorsToGraphicsObjects()
+
+        self.evaluate()
 
     def evaluate(self):
         if not self.videoPlaybackWidget.isOpened():
@@ -347,7 +496,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         if self.trackingPathGroup is not None:
             self.trackingPathGroup.setPoints(self.currentFrameNo)
 
-        self.updateFrame.emit()
+            if self.movableArrowGroup is not None:
+                self.movableArrowGroup.setPositions(self.currentFrameNo)
+
+        for k, v in self.line_item_dict.items():
+            v.setPolyline(self.currentFrameNo)
+
+    @pyqtSlot(object)
+    def arrowEdited(self, name):
+        # TODO: 方向の再推定機能の実装
+        # quit_msg = "Arrow {} edited.\nRe-estimate the direction in following frames?".format(name)
+        # reply = QtWidgets.QMessageBox.question(
+        #         self,
+        #         'Question',
+        #         quit_msg,
+        #         QtWidgets.QMessageBox.Yes,
+        #         QtWidgets.QMessageBox.No
+        #         )
+        #
+        # if reply == QtWidgets.QMessageBox.Yes:
+        #     pass
+        # else:
+        #     pass
+        pass
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

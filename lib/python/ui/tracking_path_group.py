@@ -16,6 +16,7 @@ class TrackingPathGroup(QGraphicsObject):
         self.setZValue(10)
         self.drawItemFlag = True
         self.drawLineFlag = True
+        self.drawMarkItem = True
         self.areItemsMovable = False
         self.df = None
         self.itemList = []
@@ -52,6 +53,10 @@ class TrackingPathGroup(QGraphicsObject):
             trackingPath.setColor(rgb)
             trackingPath.itemSelected.connect(self.itemSelected)
             trackingPath.setText(str(i))
+
+            trackingPath.setDrawItem(self.drawItemFlag)
+            trackingPath.setDrawLine(self.drawLineFlag)
+            trackingPath.setDrawMarkItem(self.drawMarkItem)
 
             self.itemList.append(trackingPath)
 
@@ -103,6 +108,7 @@ class TrackingPathGroup(QGraphicsObject):
             item.setDrawItem(flag)
 
     def setDrawMarkItem(self, flag):
+        self.drawMarkItem = flag
         for item in self.itemList:
             item.setDrawMarkItem(flag)
 
@@ -189,3 +195,8 @@ class TrackingPathGroup(QGraphicsObject):
     def changeTrackingPathColor(self, i, color):
         self.colors[i] = color
         self.itemList[i].setColor(color)
+        self.update()
+
+    def setColors(self, colors):
+        self.colors = colors
+        self.update()
