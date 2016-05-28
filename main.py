@@ -35,6 +35,7 @@ import icon
 
 from lib.python import misc
 from lib.python.ui.ui_main_window_base import Ui_MainWindowBase
+from lib.python.ui.data_swap_dialog import DataSwapDialog
 
 # from lib.python.ui.tracking_path import TrackingPath
 from lib.python.ui.tracking_path_group import TrackingPathGroup
@@ -220,6 +221,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.actionSkeleton.triggered.connect(self.actionSkeletonTriggered)
         self.actionArrow.triggered.connect(self.actionArrowTriggered)
 
+        self.actionChangeOrderOfNum.triggered.connect(self.actionChangeOrderOfNumTriggered)
+
         self.actionTrackingPathColor.triggered.connect(self.openTrackingPathColorSelectorDialog)
 
     def actionPathTriggered(self, checked):
@@ -261,6 +264,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 self.movableArrowGroup.show()
             else:
                 self.movableArrowGroup.hide()
+
+    def actionChangeOrderOfNumTriggered(self, checked):
+        if len(self.df.keys())!=0 or len(self.line_data_dict.keys())!=0:
+            self.videoPlaybackWidget.stop()
+
+            dialog = DataSwapDialog(self)
+            dialog.setWindowModality(Qt.WindowModal)
+            dialog.setData(self.df, self.line_data_dict)
+            dialog.swapAccepted.connect(self.evaluate)
+
+            res = dialog.exec()
 
     def openTrackingPathColorSelectorDialog(self, activated=False):
         if self.trackingPathGroup is not None:

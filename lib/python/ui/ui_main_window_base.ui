@@ -180,8 +180,15 @@
     <addaction name="actionSkeleton"/>
     <addaction name="actionArrow"/>
    </widget>
+   <widget class="QMenu" name="menuData">
+    <property name="title">
+     <string>Data</string>
+    </property>
+    <addaction name="actionChangeOrderOfNum"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuData"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpenCSVFile">
@@ -273,6 +280,11 @@
   <action name="actionOpenColorFile">
    <property name="text">
     <string>Open Color File</string>
+   </property>
+  </action>
+  <action name="actionChangeOrderOfNum">
+   <property name="text">
+    <string>Change the order of individual numbers</string>
    </property>
   </action>
  </widget>

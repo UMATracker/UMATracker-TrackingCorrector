@@ -100,6 +100,8 @@ class Ui_MainWindowBase(object):
         self.menuFile.setObjectName("menuFile")
         self.menuSettings = QtWidgets.QMenu(self.menubar)
         self.menuSettings.setObjectName("menuSettings")
+        self.menuData = QtWidgets.QMenu(self.menubar)
+        self.menuData.setObjectName("menuData")
         MainWindowBase.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindowBase)
         self.statusbar.setObjectName("statusbar")
@@ -138,6 +140,8 @@ class Ui_MainWindowBase(object):
         self.actionOpenJSONFile.setObjectName("actionOpenJSONFile")
         self.actionOpenColorFile = QtWidgets.QAction(MainWindowBase)
         self.actionOpenColorFile.setObjectName("actionOpenColorFile")
+        self.actionChangeOrderOfNum = QtWidgets.QAction(MainWindowBase)
+        self.actionChangeOrderOfNum.setObjectName("actionChangeOrderOfNum")
         self.menuFile.addAction(self.actionOpenCSVFile)
         self.menuFile.addAction(self.actionOpenJSONFile)
         self.menuFile.addAction(self.actionOpenColorFile)
@@ -151,8 +155,10 @@ class Ui_MainWindowBase(object):
         self.menuSettings.addAction(self.actionShape)
         self.menuSettings.addAction(self.actionSkeleton)
         self.menuSettings.addAction(self.actionArrow)
+        self.menuData.addAction(self.actionChangeOrderOfNum)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSettings.menuAction())
+        self.menubar.addAction(self.menuData.menuAction())
 
         self.retranslateUi(MainWindowBase)
         QtCore.QMetaObject.connectSlotsByName(MainWindowBase)
@@ -168,6 +174,7 @@ class Ui_MainWindowBase(object):
         self.overlayCheckBox.setText(_translate("MainWindowBase", "Overlay"))
         self.menuFile.setTitle(_translate("MainWindowBase", "File"))
         self.menuSettings.setTitle(_translate("MainWindowBase", "View"))
+        self.menuData.setTitle(_translate("MainWindowBase", "Data"))
         self.actionOpenCSVFile.setText(_translate("MainWindowBase", "Open CSV File"))
         self.actionSaveDataFiles.setText(_translate("MainWindowBase", "Save Data FIles"))
         self.actionTrackingPathColor.setText(_translate("MainWindowBase", "Tracking Path Color"))
@@ -179,6 +186,7 @@ class Ui_MainWindowBase(object):
         self.actionArrow.setText(_translate("MainWindowBase", "Arrow"))
         self.actionOpenJSONFile.setText(_translate("MainWindowBase", "Open JSON File"))
         self.actionOpenColorFile.setText(_translate("MainWindowBase", "Open Color File"))
+        self.actionChangeOrderOfNum.setText(_translate("MainWindowBase", "Change the order of individual numbers"))
 
 from .overlaid_graphics_view import OverlaidGraphicsView
 from .video_playback_widget import VideoPlaybackWidget
