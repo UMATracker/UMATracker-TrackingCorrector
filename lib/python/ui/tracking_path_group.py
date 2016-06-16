@@ -199,4 +199,6 @@ class TrackingPathGroup(QGraphicsObject):
 
     def setColors(self, colors):
         self.colors = colors
+        for rgb, item in zip(self.colors, self.itemList):
+            item.setColor(rgb)
         self.update()
