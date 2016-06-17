@@ -96,7 +96,7 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>CIrcle radius:</string>
+             <string>Circle radius:</string>
             </property>
            </widget>
           </item>

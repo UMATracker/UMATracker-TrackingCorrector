@@ -169,7 +169,7 @@ class Ui_MainWindowBase(object):
         self.groupBox.setTitle(_translate("MainWindowBase", "Tracking"))
         self.groupBox_2.setTitle(_translate("MainWindowBase", "Zoom"))
         self.label_2.setText(_translate("MainWindowBase", "Path length:"))
-        self.label.setText(_translate("MainWindowBase", "CIrcle radius:"))
+        self.label.setText(_translate("MainWindowBase", "Circle radius:"))
         self.label_3.setText(_translate("MainWindowBase", "Mark interval:"))
         self.overlayCheckBox.setText(_translate("MainWindowBase", "Overlay"))
         self.menuFile.setTitle(_translate("MainWindowBase", "File"))
