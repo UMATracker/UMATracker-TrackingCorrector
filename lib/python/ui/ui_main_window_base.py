@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_main_window_base.ui'
+# Form implementation generated from reading ui file '.\ui_main_window_base.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -94,7 +94,7 @@ class Ui_MainWindowBase(object):
         self.horizontalLayout.addWidget(self.groupBox_2)
         MainWindowBase.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindowBase)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 902, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 902, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -174,7 +174,7 @@ class Ui_MainWindowBase(object):
         self.overlayCheckBox.setText(_translate("MainWindowBase", "Overlay"))
         self.menuFile.setTitle(_translate("MainWindowBase", "File"))
         self.menuSettings.setTitle(_translate("MainWindowBase", "View"))
-        self.menuData.setTitle(_translate("MainWindowBase", "Data"))
+        self.menuData.setTitle(_translate("MainWindowBase", "Edit"))
         self.actionOpenCSVFile.setText(_translate("MainWindowBase", "Open CSV File"))
         self.actionSaveDataFiles.setText(_translate("MainWindowBase", "Save Data FIles"))
         self.actionTrackingPathColor.setText(_translate("MainWindowBase", "Tracking Path Color"))
