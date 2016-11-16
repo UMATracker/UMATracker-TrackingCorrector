@@ -449,7 +449,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
         self.graphicsViewResized()
 
     def eventFilter(self, obj, event):
-        if obj is self.inputGraphicsView.viewport() and event.type()==QEvent.Wheel:
+        if event.type() == QEvent.Wheel:
+            self.videoPlaybackWidget.playbackSlider.wheelEvent(event)
             return True
 
         if event.type() == QEvent.KeyPress:
