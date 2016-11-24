@@ -346,6 +346,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 self.trackingPathGroup.setDrawItem(self.actionCircle.isChecked())
                 self.trackingPathGroup.setDrawMarkItem(self.actionIntervalMark.isChecked())
 
+                shape = self.df['position'].shape
+                self.num_items = int(shape[1]/2)
+                index = (np.repeat(range(self.num_items), 2).tolist(), [0,1]*self.num_items)
+                self.df['position'].columns = pd.MultiIndex.from_tuples(tuple(zip(*index)))
+
                 self.trackingPathGroup.setDataFrame(self.df['position'])
             elif name=='arrow':
                 if self.movableArrowGroup is not None:
@@ -416,6 +421,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
                     col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(int(round(col_n)))]).flatten()
                     df.columns = pd.Index(col_names)
+                    df.index.name = k
                     df.to_csv(filePath)
 
         for k, v in self.line_data_dict.items():
