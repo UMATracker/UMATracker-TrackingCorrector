@@ -342,12 +342,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 self.trackingPathGroup.setRect(self.inputScene.sceneRect())
                 self.inputScene.addItem(self.trackingPathGroup)
 
-                if not self.actionPath.isChecked():
-                    self.trackingPathGroup.setDrawLine(False)
-                if not self.actionCircle.isChecked():
-                    self.trackingPathGroup.setDrawItem(False)
-                if not self.actionIntervalMark.isChecked():
-                    self.trackingPathGroup.setDrawMarkItem(False)
+                self.trackingPathGroup.setDrawLine(self.actionPath.isChecked())
+                self.trackingPathGroup.setDrawItem(self.actionCircle.isChecked())
+                self.trackingPathGroup.setDrawMarkItem(self.actionIntervalMark.isChecked())
 
                 self.trackingPathGroup.setDataFrame(self.df['position'])
             elif name=='arrow':
