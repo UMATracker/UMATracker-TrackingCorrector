@@ -453,12 +453,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Wheel:
-            self.videoPlaybackWidget.playbackSlider.wheelEvent(event)
+            self.videoPlaybackWidget.wheelEvent(event)
             return True
 
         if event.type() == QEvent.KeyPress:
             if Qt.Key_Home <= event.key() <= Qt.Key_PageDown:
-                self.videoPlaybackWidget.playbackSlider.keyPressEvent(event)
+                self.videoPlaybackWidget.keyPressEvent(event)
                 return True
 
         return False
