@@ -352,6 +352,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 self.df['position'].columns = pd.MultiIndex.from_tuples(tuple(zip(*index)))
 
                 self.trackingPathGroup.setDataFrame(self.df['position'])
+
+                delta = self.df['position'].index[1] - self.df['position'].index[0]
+                self.videoPlaybackWidget.setPlaybackDelta(delta)
+                self.videoPlaybackWidget.setMaxTickableFrameNo(self.df['position'].index[-1])
             elif name=='arrow':
                 if self.movableArrowGroup is not None:
                     self.inputScene.removeItem(self.movableArrowGroup)
