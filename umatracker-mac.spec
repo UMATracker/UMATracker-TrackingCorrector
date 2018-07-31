@@ -1,10 +1,7 @@
 import os
 import glob
 
-datas = [('./data', 'data'),
-        ('./lib/blockly', 'lib/blockly'),
-        ('./lib/closure-library', 'lib/closure-library'),
-        ('./lib/editor', 'lib/editor'),]
+datas = [('./data', 'data'),]
 
 dlls = glob.glob('/usr/local/Cellar/ffms2/*/lib/libffms2.dylib')
 
