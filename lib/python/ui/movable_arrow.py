@@ -187,8 +187,8 @@ class MovableArrowGroup(QGraphicsObject):
             if self.currentFrameNo in self.df.index:
                 self.show()
                 for i, arrow_item in enumerate(self.itemList):
-                    begin = self.df_orig.loc[self.currentFrameNo, i].as_matrix()
-                    end = self.df.loc[self.currentFrameNo, i].as_matrix()
+                    begin = self.df_orig.loc[self.currentFrameNo, i].values
+                    end = self.df.loc[self.currentFrameNo, i].values
                     arrow_item.setPosition(begin, end)
             else:
                 self.hide()

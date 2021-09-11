@@ -377,7 +377,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
             filePath, _ = QFileDialog.getOpenFileName(None, 'Open Color File', userDir, 'Color files (*.color)')
 
         if len(filePath) is not 0:
-            self.colors = pd.read_csv(filePath, index_col=0).as_matrix().tolist()
+            self.colors = pd.read_csv(filePath, index_col=0).values.tolist()
             self.colors = [QColor(*rgb) for rgb in self.colors]
             self.setColorsToGraphicsObjects()
 
@@ -421,7 +421,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow, Ui_MainWindowBase):
                 if len(filePath) is not 0:
                     logger.debug("Saving CSV file: {0}".format(filePath))
                     df = v.copy()
-                    col_n = df.as_matrix().shape[1]/2
+                    col_n = df.values.shape[1]/2
 
                     col_names = np.array([('x{0}'.format(i), 'y{0}'.format(i)) for i in range(int(round(col_n)))]).flatten()
                     df.columns = pd.Index(col_names)
