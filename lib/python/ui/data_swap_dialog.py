@@ -47,8 +47,8 @@ class DataSwapDialog(Ui_DataSwapDialog, QDialog):
 
         if self.df is not None and len(self.df.keys())!=0:
             key = list(self.df.keys())[0]
-            self.col_n = int(round(self.df[key].as_matrix().shape[1]/2))
-            self.row_n = self.df[key].as_matrix().shape[0]
+            self.col_n = int(round(self.df[key].values.shape[1]/2))
+            self.row_n = self.df[key].values.shape[0]
         elif self.line_data_dict is not None and len(self.line_data_dict.keys())!=0:
             key = list(self.line_data_dict.keys())[0]
             self.col_n = len(self.line_data_dict[key][str(0)])
@@ -84,8 +84,8 @@ class DataSwapDialog(Ui_DataSwapDialog, QDialog):
             i = 0
             for k, v in self.df.items():
                 progress.setValue(i)
-                array0 = v.loc[:, n0].as_matrix()
-                array1 = v.loc[:, n1].as_matrix()
+                array0 = v.loc[:, n0].values
+                array1 = v.loc[:, n1].values
 
                 tmp = array0.copy()
 
